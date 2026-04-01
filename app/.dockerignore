@@ -1,0 +1,19 @@
+# Dependencies (re-installed inside the image via npm install)
+node_modules
+
+# Git files
+.git
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dev tooling
+.env
+.env.*
+.DS_Store
+
+# Editor files
+.vscode
+.idea
