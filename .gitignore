@@ -1,4 +1,10 @@
-# Byte-compiled / optimized / DLL files
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json   # optional: remove this line if you want to commit lock file
+
+# ── Byte-compiled / optimized / DLL files ─────────────────────────────────────
 __pycache__/
 *.py[codz]
 *$py.class
