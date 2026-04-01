@@ -229,3 +229,384 @@ HEALTHCHECK Test container health
 CMD         Default runtime command
 ENTRYPOINT  Fixed runtime command
 ```
+---
+---
+
+
+# Dockerfile Notes (Complete Guide)
+
+---
+
+## What is a Dockerfile
+
+A Dockerfile is a **text file containing instructions** to build a Docker image.
+
+👉 It automates image creation.
+
+---
+
+## Basic Structure of Dockerfile
+
+```dockerfile
+# Base Image
+FROM ubuntu:20.04
+
+# Metadata
+LABEL maintainer="you@example.com"
+
+# Install dependencies
+RUN apt-get update && apt-get install -y nginx
+
+# Copy files
+COPY . /app
+
+# Set working directory
+WORKDIR /app
+
+# Expose port
+EXPOSE 80
+
+# Default command
+CMD ["nginx", "-g", "daemon off;"]
+````
+
+---
+
+# 🔹 Dockerfile Keywords (Instructions)
+
+---
+
+## 1. FROM
+
+### Description
+
+* Specifies the base image
+* MUST be the first instruction
+
+### Example
+
+```dockerfile
+FROM node:18
+```
+
+---
+
+## 2. LABEL
+
+### Description
+
+* Adds metadata to image
+
+### Example
+
+```dockerfile
+LABEL version="1.0" author="John"
+```
+
+---
+
+## 3. RUN
+
+### Description
+
+* Executes commands during build time
+* Creates a new layer
+
+### Example
+
+```dockerfile
+RUN apt-get update
+RUN apt-get install -y curl
+```
+
+👉 Best practice:
+
+```dockerfile
+RUN apt-get update && apt-get install -y curl
+```
+
+---
+
+## 4. COPY
+
+### Description
+
+* Copies files from local system → container
+
+### Example
+
+```dockerfile
+COPY . /app
+COPY index.html /usr/share/nginx/html/
+```
+
+---
+
+## 5. ADD
+
+### Description
+
+* Similar to COPY but with extra features:
+
+  * Can extract `.tar` files
+  * Can download from URL
+
+### Example
+
+```dockerfile
+ADD app.tar.gz /app
+ADD https://example.com/file.txt /file.txt
+```
+
+👉 Prefer `COPY` unless extra features needed
+
+---
+
+## 6. WORKDIR
+
+### Description
+
+* Sets working directory inside container
+
+### Example
+
+```dockerfile
+WORKDIR /app
+```
+
+👉 Automatically creates directory if not exists
+
+---
+
+## 7. EXPOSE
+
+### Description
+
+* Documents which port container uses
+
+### Example
+
+```dockerfile
+EXPOSE 3000
+```
+
+👉 Does NOT publish port (just info)
+
+---
+
+## 8. ENV
+
+### Description
+
+* Sets environment variables
+
+### Example
+
+```dockerfile
+ENV NODE_ENV=production
+ENV PORT=3000
+```
+
+---
+
+## 9. ARG
+
+### Description
+
+* Build-time variables
+
+### Example
+
+```dockerfile
+ARG VERSION=1.0
+```
+
+👉 Used during build only
+
+---
+
+## 10. CMD
+
+### Description
+
+* Default command when container starts
+* Only one CMD is used (last one)
+
+### Example
+
+```dockerfile
+CMD ["node", "app.js"]
+```
+
+---
+
+## 11. ENTRYPOINT
+
+### Description
+
+* Fixed command that always runs
+
+### Example
+
+```dockerfile
+ENTRYPOINT ["node"]
+```
+
+👉 Combine with CMD:
+
+```dockerfile
+ENTRYPOINT ["node"]
+CMD ["app.js"]
+```
+
+---
+
+## 12. USER
+
+### Description
+
+* Sets user inside container
+
+### Example
+
+```dockerfile
+USER node
+```
+
+---
+
+## 13. VOLUME
+
+### Description
+
+* Creates mount point for persistent data
+
+### Example
+
+```dockerfile
+VOLUME /data
+```
+
+---
+
+## 14. ONBUILD
+
+### Description
+
+* Executes when image is used as base
+
+### Example
+
+```dockerfile
+ONBUILD COPY . /app
+```
+
+---
+
+## 15. SHELL
+
+### Description
+
+* Changes default shell
+
+### Example
+
+```dockerfile
+SHELL ["/bin/bash", "-c"]
+```
+
+---
+
+# 🔹 Example Dockerfile (Node App)
+
+```dockerfile
+FROM node:18
+
+WORKDIR /app
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["node", "app.js"]
+```
+
+---
+
+# 🔹 Build and Run Example
+
+## Build Image
+
+```bash
+docker build -t mynodeapp .
+```
+
+## Run Container
+
+```bash
+docker run -d -p 3000:3000 mynodeapp
+```
+
+---
+
+# 🔹 Important Concepts
+
+---
+
+## Layers
+
+* Each instruction creates a layer
+* Layers are cached for faster builds
+
+---
+
+## Best Practices
+
+* Use small base images (`alpine`)
+* Combine RUN commands
+* Use `.dockerignore`
+* Avoid unnecessary files
+* Use specific versions (not `latest`)
+
+---
+
+# 🔹 Quick Summary Table
+
+| Instruction | Purpose              |
+| ----------- | -------------------- |
+| FROM        | Base image           |
+| RUN         | Execute command      |
+| COPY        | Copy files           |
+| ADD         | Advanced copy        |
+| WORKDIR     | Set directory        |
+| EXPOSE      | Declare port         |
+| CMD         | Default command      |
+| ENTRYPOINT  | Fixed command        |
+| ENV         | Environment variable |
+| ARG         | Build-time variable  |
+| VOLUME      | Persistent storage   |
+
+---
+
+# 🚀 Simple Example (Nginx)
+
+```dockerfile
+FROM nginx:latest
+COPY index.html /usr/share/nginx/html/
+EXPOSE 80
+```
+
+Run:
+
+```bash
+docker build -t mynginx .
+docker run -p 8080:80 mynginx
+```
+
+👉 Open: [http://localhost:8080](http://localhost:8080)
+
+---
+
