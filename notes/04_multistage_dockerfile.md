@@ -399,3 +399,172 @@ For automation teams, it is one of the best ways to make your framework:
 ---
 
 ---
+
+
+
+Running containers as a **non-root user** is a key production security practice in Docker.
+
+---
+
+# Why Avoid Root in Docker?
+
+By default, Docker containers run as  **root (UID 0)** . This is risky because:
+
+* If your container is compromised, an attacker gets **root privileges inside the container**
+* In some misconfigured environments, this can escalate to the **host machine**
+* Root can modify system files, install packages, or access sensitive data
+
+---
+
+# Benefits of Using a Non-Root User
+
+### 1) Reduced Attack Surface
+
+A non-root user has limited permissions, so even if compromised:
+
+* they can’t install system packages
+* they can’t modify OS-level files
+
+---
+
+### 2) Better Isolation
+
+Prevents accidental or malicious access to:
+
+* system directories
+* sensitive configs
+* other processes
+
+---
+
+### 3) Compliance & Best Practices
+
+Many security standards (SOC2, ISO, enterprise policies) require:
+
+> “Containers must not run as root”
+
+---
+
+# When Should You Use Non-Root?
+
+Always use non-root in:
+
+* production containers
+* SaaS deployments
+* CI/CD pipelines (recommended)
+
+You may temporarily use root for:
+
+* installing dependencies
+* setting up environment
+
+Then switch to non-root.
+
+---
+
+# Example Dockerfile (Node / Playwright Style)
+
+```dockerfile
+# Stage 1: Base image
+FROM node:20-bookworm
+
+WORKDIR /app
+
+# Create a non-root user
+RUN useradd -m appuser
+
+# Copy files
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+# Change ownership of app files
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Run application
+CMD ["npx", "playwright", "test"]
+```
+
+---
+
+# Explanation
+
+### Create User
+
+```dockerfile
+RUN useradd -m appuser
+```
+
+* Creates a new user named `appuser`
+* `-m` creates a home directory
+
+---
+
+### Change File Ownership
+
+```dockerfile
+RUN chown -R appuser:appuser /app
+```
+
+* Ensures the new user can access project files
+* Prevents permission errors
+
+---
+
+### Switch User
+
+```dockerfile
+USER appuser
+```
+
+* All subsequent commands run as non-root
+* This is the key security step
+
+---
+
+# Important Notes
+
+### 1) Order Matters
+
+Do all installations as root **before switching user**
+
+---
+
+### 2) File Permissions
+
+If you forget `chown`, you may get errors like:
+
+* permission denied
+* cannot write logs/reports
+
+---
+
+### 3) Playwright Consideration
+
+* Running as root disables Chromium sandbox
+* Running as non-root enables better isolation (more secure)
+
+---
+
+# Quick Summary
+
+Using a non-root user in Docker:
+
+* prevents privilege escalation
+* limits damage if compromised
+* improves production security
+* is an industry best practice
+
+---
+
+# One-Line Interview Answer
+
+> Running Docker containers as a non-root user reduces security risks by limiting permissions and preventing privilege escalation inside the container.
+
+---
+---
+
